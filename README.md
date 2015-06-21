@@ -9,7 +9,7 @@ What it does?
 
 Added features:
 - Adding Feedrates for Traveling/Cutting/Z-Movements
-- Added support for hudbrogs Visualisation in Octoprint / http://gcode.ws (http://www.thingiverse.com/thing:35248)
+- Added support for hudbrogs Visualisation in Octoprint / http://gcode.ws (https://github.com/hudbrog/gCodeViewer/)
 
 Hope this is for some use
 
