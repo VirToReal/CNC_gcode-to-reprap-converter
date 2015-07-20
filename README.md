@@ -1,11 +1,12 @@
 # CNC_gcode-to-reprap-converter
-PyCam (or other CNC) GCode to RepRap converter
+PyCam/HeeksCNC GCode to RepRap converter
 
 Created by River Allen (c) 2012
 Modified by me 
 
 What it does?
-- convert pycam/heekscnc (or other cnc) g-code files into reprap gcode (just tested with marlin-firmware for now).
+- convert pycam/heekscnc g-code files into reprap gcode (just tested with marlin-firmware for now).
+  (Please let me know if it works with other CAM-Software)
 
 Added features:
 - Adding Feedrates for Traveling/Cutting/Z-Movements
