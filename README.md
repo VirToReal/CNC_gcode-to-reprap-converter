@@ -5,11 +5,12 @@ Created by River Allen (c) 2012
 Modified by me 
 
 What it does?
-- convert pycam (or other cnc) g-code files into reprap gcode (just tested with marlin-firmware for now).
+- convert pycam/heekscnc (or other cnc) g-code files into reprap gcode (just tested with marlin-firmware for now).
 
 Added features:
 - Adding Feedrates for Traveling/Cutting/Z-Movements
 - Added support for hudbrogs Visualisation in Octoprint / http://gcode.ws (https://github.com/hudbrog/gCodeViewer/)
+- Added support for converting HeeksCNC G-Codes (Based on emc2b post processor)
 
 Hope this is for some use
 
