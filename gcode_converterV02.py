@@ -6,6 +6,7 @@
 ##Modifikation Information:
 ##Added Visualisation-Support for PyCam-Gcode in GCode Analyzer/Visualizer (c) hudbrog (used in OctoPrint and on his side http://gcode.ws )
 ##Added Feedrates for traveling/cutting/z-movements
+##Added Support for HeeksCNC generated G-Codes with Arc-Commands (G3 / G4) // Visualisation wont work with Arcs
 ##
 ##All rights reserved.
 ##
@@ -42,6 +43,7 @@ class GCodeConverter:
             'M6',
             'M3',
             'T1',
+            'T4',
             'S1', # Surface command does not work (this is a hack)
             'G40', # Hardy: Marlin would not understand 
             'G49', # Hardy: Marlin would not understand 
@@ -110,43 +112,81 @@ class MarlinGCodeConverter(PyCamGCodeConverter):
         convert_fname = PyCamGCodeConverter.convert(self, filename, final_pos)
         # Store this new conversion in a temp file
         temp_fname = '.temp_convert'
+        pattern = re.compile('([gG01]{1,2})+\s([xX0-9.]{1,15})+\s([yY0-9.]{1,15})+\s([zZ0-9.]{1,15})+\s([fF0-9.]+[0-9.]{1,15})+\s') #Hardy: RegEx for Detect and Slice G-Code which mess with Visualisation
         with open(convert_fname, 'rb') as f_pycc:
             with open(temp_fname, 'wb') as f_temp:
                 move_type = None
 		AF = 0 #Declare False at first
 		BZ = 'M103 ; Support for Visualisation\n'
 		AZ = 'M101 ; Support for Visualisation\n'
-		pattern = re.compile('([gG01]{1,2})+\s([xX0-9.]{1,15})+\s([yY0-9.]{1,15})+\s([zZ0-9.]{1,15})+\s([fF0-9.]+[0-9.]{1,15})+\s') #RegEx for Detect and Slice G-Code which mess with Visualisation
 		
                 for l in f_pycc.readlines():
-                    first_chars = l[:2].upper()
-                    if first_chars == 'G1':
+                    first_3_chars = l[:3].upper()
+                    first_2_chars = l[:2].upper()
+                    first_char = l[:1].upper()
+                    if first_3_chars == 'G1 ' or first_3_chars == 'G01':
                         move_type = 'G1'
-                    elif first_chars == 'G0':
+                    elif first_3_chars == 'G0 ' or first_3_chars == 'G00':
                         move_type = 'G0'
-                    elif first_chars == ' X' or first_chars == ' Y' or first_chars == ' Z':
+		    elif first_3_chars == 'G02':
+			move_type = 'G2'
+		    elif first_3_chars == 'G03':
+			move_type = 'G3'
+                    elif first_2_chars == ' X' or first_char == 'X' or first_2_chars == ' Y' or first_char == 'Y' or first_2_chars == ' Z' or first_char == 'Z':
+		      if first_char == 'Z': #Hardy: Check if HeeksCNC is on HightSave at Surface 
+			l = "%s%s" % ("G1 ",l) 
+		      else:
                        # Change ' X100' to 'G0 X100'
-                       l = "%s%s" % (move_type, l) 
-		    # Hardy: Check if G1/G2 given and change its Feedrate at the end of the G-Code-Line
+                       l = "%s%s" % (move_type + " ", l) 
+		    # Hardy: Check if G0/G1 given and change its Feedrate at the end of the G-Code-Line
+		    # Also adds space between if not already placed
                     second_chars = l[2:4].upper()
                     last_chars = len(str(l))
-		    if second_chars == ' Z':
+		    if second_chars == ' Z' or second_chars == 'Z ':
 		      l1 = l[:last_chars-1]
 		      l2 = l[last_chars-1:]
 		      lf = " F" + str(feedrate[2])
 		      l = l1 + lf + l2
 		      AF = AF + 1
 		      ZAV = True
+		    elif move_type == 'G3':
+		      l1 = l[:last_chars-1]
+		      l2 = l[last_chars-1:]
+		      l3 = l[last_chars-2:last_chars-1]
+		      if ' ' in l3:
+			lf = "F" + str(feedrate[1])
+		      else:
+			lf = " F" + str(feedrate[1])
+		      l = l1 + lf + l2
+		      ZAV = False
+		    elif move_type == 'G2':
+		      l1 = l[:last_chars-1]
+		      l2 = l[last_chars-1:]
+		      l3 = l[last_chars-2:last_chars-1]
+		      if ' ' in l3:
+			lf = "F" + str(feedrate[1])
+		      else:
+			lf = " F" + str(feedrate[1])
+		      l = l1 + lf + l2
+		      ZAV = False
                     elif move_type == 'G1':
 		      l1 = l[:last_chars-1]
 		      l2 = l[last_chars-1:]
-		      lf = " F" + str(feedrate[1])
+		      l3 = l[last_chars-2:last_chars-1]
+		      if ' ' in l3:
+			lf = "F" + str(feedrate[1])
+		      else:
+			lf = " F" + str(feedrate[1])
 		      l = l1 + lf + l2
 		      ZAV = False
 		    elif move_type == 'G0':
 		      l1 = l[:last_chars-1]
 		      l2 = l[last_chars-1:]
-		      lf = " F" + str(feedrate[0])
+		      l3 = l[last_chars-2:last_chars-1]
+		      if ' ' in l3:
+			lf = "F" + str(feedrate[0])
+		      else:
+			lf = " F" + str(feedrate[0])
 		      l = l1 + lf + l2
 		      ZAV = False
 		      
