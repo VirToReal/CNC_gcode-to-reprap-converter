@@ -341,7 +341,8 @@ class MarlinGCodeConverter(PyCamGCodeConverter):
         shutil.copy(temp_fname, convert_fname)
         # Get rid of temp files
         os.remove(temp_fname)
-        #os.remove(temp_calc)
+        os.remove(temp_calc)
+        os.remove(temp_sum)
         return convert_fname
 
 
