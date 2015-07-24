@@ -329,12 +329,12 @@ class MarlinGCodeConverter(PyCamGCodeConverter):
 	    travelingdistance = sum(summaster2)
 	    
 	    if cuttingdistance != 0:
-	      print "Total Cutting Distance: " + str(cuttingdistance)
-	      print "Total Travel Distance: " + str(travelingdistance)
-	      print "Total Distance: " + str(cuttingdistance+travelingdistance)
+	      print "Total Cutting Distance: " + str(cuttingdistance) + " mm"
+	      print "Total Travel Distance: " + str(travelingdistance) + " mm"
+	      print "Total Distance: " + str(cuttingdistance+travelingdistance) + " mm"
 	    else:
 	      print "Could not determine Cutting-Distance: Z-Cutting-Level is not at 0"
-	      print "Total Distance: " + str(cuttingdistance+travelingdistance)
+	      print "Total Distance: " + str(cuttingdistance+travelingdistance) + " mm"
 
         # Copy the temp file conversion over to the pycam conversion
         # for cleanliness
