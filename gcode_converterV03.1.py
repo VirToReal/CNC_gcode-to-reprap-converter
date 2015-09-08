@@ -51,7 +51,7 @@ class GCodeConverter:
             'G49', # Hardy: Marlin would not understand 
             'G80', # Hardy: Marlin would not understand 
             'G54', # Hardy: Marlin would not understand 
-            'G61' # Hardy: Marlin would not understand 
+            'G61', # Hardy: Marlin would not understand
             ]
     
     def convert(self, filename):
@@ -138,6 +138,8 @@ class MarlinGCodeConverter(PyCamGCodeConverter):
 			    move_type = 'G2'
 			elif first_3_chars == 'G03':
 			    move_type = 'G3'
+			elif first_3_chars == 'G90': #Heeks places an 'G90' command after eachs seperate Drawing-Description - Marlin mess with that
+			    move_type = 'unchanged'
 			elif first_2_chars == ' X' or first_char == 'X' or first_2_chars == ' Y' or first_char == 'Y' or first_2_chars == ' Z' or first_char == 'Z':
 			  if first_char == 'Z': #Hardy: Check if HeeksCNC is on HightSave at Surface 
 			    l = "%s%s" % ("G1 ",l) 
@@ -195,6 +197,10 @@ class MarlinGCodeConverter(PyCamGCodeConverter):
 			    lf = " F" + str(feedrate[0])
 			  l = l1 + lf + l2
 			  ZAV = False
+			elif move_type == 'unchanged': # Fix wrong habbit of HeeksCNC
+			  l1 = l[3:last_chars-1]
+			  l2 = l[last_chars-1:]
+			  l = "G90 \n" + "G0 " + l1 + " F" + str(feedrate[0]) + l2
 			
 			# Hardy: Crop out necesary Values for calculating Travel and Cutting-Distances and Write it in a Temp-File
 			if distances.findall(str(l)):
