@@ -51,7 +51,7 @@ class GCodeConverter:
             'G49', # Hardy: Marlin would not understand 
             'G80', # Hardy: Marlin would not understand 
             'G54', # Hardy: Marlin would not understand 
-            'G61', # Hardy: Marlin would not understand
+            'G61' # Hardy: Marlin would not understand
             ]
     
     def convert(self, filename):
@@ -71,7 +71,7 @@ class PyCamGCodeConverter(GCodeConverter):
         with open(filename, 'rb') as rf:
             with open(write_fname, 'wb') as wf:
                 # Add some metadata to the file (not really used at this point)
-                wf.write('; CONVERTED FOR MENDEL: %s\n' % str(datetime.now()))
+                wf.write('; CONVERTED FOR REPRAP: %s\n' % str(datetime.now()))
                 # Copy the contents of the original gcode file devoid
                 # of the pycam gcode commands that do not work on the 
                 # mendel gcode firmware.
@@ -201,6 +201,7 @@ class MarlinGCodeConverter(PyCamGCodeConverter):
 			  l1 = l[3:last_chars-1]
 			  l2 = l[last_chars-1:]
 			  l = "G90 \n" + "G0 " + l1 + " F" + str(feedrate[0]) + l2
+			  move_type = None
 			
 			# Hardy: Crop out necesary Values for calculating Travel and Cutting-Distances and Write it in a Temp-File
 			if distances.findall(str(l)):
