@@ -145,7 +145,7 @@ class MarlinGCodeConverter(PyCamGCodeConverter):
 			    l = "%s%s" % ("G1 ",l) 
 			  else:
 			    # Change ' X100' to 'G0 X100'
-			    l = "%s%s" % (move_type + " ", l) 
+			    l = "%s%s" % (str(move_type) + " ", l) 
 			# Hardy: Check if G0/G1 given and change its Feedrate at the end of the G-Code-Line
 			# Also adds space between if not already placed
 			second_chars = l[2:4].upper()
@@ -201,7 +201,6 @@ class MarlinGCodeConverter(PyCamGCodeConverter):
 			  l1 = l[3:last_chars-1]
 			  l2 = l[last_chars-1:]
 			  l = "G90 \n" + "G0 " + l1 + " F" + str(feedrate[0]) + l2
-			  move_type = None
 			
 			# Hardy: Crop out necesary Values for calculating Travel and Cutting-Distances and Write it in a Temp-File
 			if distances.findall(str(l)):
