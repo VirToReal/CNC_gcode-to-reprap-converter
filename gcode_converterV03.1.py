@@ -146,6 +146,8 @@ class MarlinGCodeConverter(PyCamGCodeConverter):
 			  else:
 			    # Change ' X100' to 'G0 X100'
 			    l = "%s%s" % (str(move_type) + " ", l) 
+			else:
+			    move_type = None
 			# Hardy: Check if G0/G1 given and change its Feedrate at the end of the G-Code-Line
 			# Also adds space between if not already placed
 			second_chars = l[2:4].upper()
