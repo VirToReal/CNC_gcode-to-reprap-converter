@@ -118,10 +118,12 @@ class MarlinGCodeConverter(PyCamGCodeConverter):
         temp_sum = '.temp_sum'
         pattern = re.compile('([gG01]{1,2})+\s([xX0-9.]{1,15})+\s([yY0-9.]{1,15})+\s([zZ0-9.]{1,15})+\s([fF0-9.]+[0-9.]{1,15})+\s') #Hardy: RegEx for Detect and Slice G-Code which mess with Visualisation
         distances = re.compile('([gG0-3]{1,3})+\s{1,2}[xX]([0-9.]{1,15})|\s[yY]-?([0-9.]{1,15})|\s[zZ]-?([0-9.]{1,15})') #Hardy: RegEx for Calculating Distances
+        waiting = re.compile('([gG04]{1,3})+\s{1,2}[P]([0-9.]{1,5})') #Hardy: RegEx for reconvert Waiting Commands
         with open(convert_fname, 'rb') as f_pycc:
             with open(temp_fname, 'wb') as f_temp:
 		with open(temp_calc, 'wb') as f_calc:
 		    move_type = None
+		    fetch_time = None
 		    AF = 0 #Declare False at first
 		    BZ = 'M103 ; Support for Visualisation\n'
 		    AZ = 'M101 ; Support for Visualisation\n'
@@ -138,6 +140,9 @@ class MarlinGCodeConverter(PyCamGCodeConverter):
 			    move_type = 'G2'
 			elif first_3_chars == 'G03':
 			    move_type = 'G3'
+			elif first_3_chars == 'G04':
+			    move_type = 'G0'
+			    fetch_time = True
 			elif first_3_chars == 'G90': #Heeks places an 'G90' command after eachs seperate Drawing-Description - Marlin mess with that
 			    move_type = 'unchanged'
 			elif first_2_chars == ' X' or first_char == 'X' or first_2_chars == ' Y' or first_char == 'Y' or first_2_chars == ' Z' or first_char == 'Z':
@@ -152,7 +157,13 @@ class MarlinGCodeConverter(PyCamGCodeConverter):
 			# Also adds space between if not already placed
 			second_chars = l[2:4].upper()
 			last_chars = len(str(l))
-			if second_chars == ' Z' or second_chars == 'Z ':
+			if fetch_time:
+			  l2 = l[last_chars-1:]
+			  wait = waiting.match(str(l))
+			  time = wait.group(2)
+			  l = "G4 P" + str(int(time)*1000) + " ; Wait for " + time + " seconds" + l2
+			  fetch_time = False
+			elif second_chars == ' Z' or second_chars == 'Z ':
 			  l1 = l[:last_chars-1]
 			  l2 = l[last_chars-1:]
 			  lf = " F" + str(feedrate[2])
@@ -330,7 +341,7 @@ class MarlinGCodeConverter(PyCamGCodeConverter):
 		  calc = True
 		else:
 		  del cache[0]
-		  
+
 
 	    # Sum all Distances
 	    cuttingdistance = sum(summaster1)
