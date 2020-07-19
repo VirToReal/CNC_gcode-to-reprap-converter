@@ -1,3 +1,10 @@
+ATTENTION
+================
+I moved my repositories to gitlab, please do any suggestions there: https://gitlab.com/Hirmer/CNC_gcode-to-reprap-converter
+
+Thank you!
+
+
 # CNC_gcode-to-reprap-converter
 PyCam/HeeksCNC GCode to RepRap converter
 
